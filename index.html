@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Sounds of Decay</title>
+    <link href="main.css" rel="stylesheet" type="text/css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Germania+One&display=swap" rel="stylesheet">
+  </head>
+
+  <body style="background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;" background="bosch2.jpg">
+
+      <!-- video player buttons -->
+    <div class="header">
+      <h1>Sounds of Decay</h1>
+      <p>Heavy/Death/Doom/Black/Thrash Metal Videos</p>
+    </div>
+  
+      <br>
+  
+      <div class="buttons-container">
+        <!-- mobile player controls you could add eventlistener in JS but decided to keep simple simple  -->
+        <button onclick="shuff_list()">Shuffle</button>
+        <button onclick="player.previousVideo()">Back</button>
+        <button onclick="player.playVideo()">Play</button>
+        <button onclick="player.pauseVideo()">Pause ||</button>
+        <button onclick="player.nextVideo()">Next </button>
+      </div>
+
+    <div class="embed-container">
+      <div id="player"></div>
+    </div>
+
+    <script>
+      var urlParams = new URLSearchParams( window.location.search );
+      var SETTINGS  = {
+        playlist_id: urlParams.get('playlist') || 'PLg1W9rhe-W-5PgP6SAEEOTt-QC15a17cj',
+        //PLkdSC3c33L8lZYUwJ5OFhB1DaIyC7bQK4//
+        //PLg1W9rhe-W-5PgP6SAEEOTt-QC15a17cj//
+        //PL08B0CB7EF00E8708//
+        random     : 1,
+        autoplay   : 1,
+        loop       : 1,
+        index      : 0,
+      };
+
+      // -----------------------------------------------------------------------
+
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // -----------------------------------------------------------------------
+
+      var player;
+
+      function onYouTubeIframeAPIReady()
+      {
+
+        console.log('onYouTubeIframeAPIReady()');
+
+        // ---------------------------------------------------------------------
+
+        player = new YT.Player('player', {
+
+          height: '420',
+          width : '720',
+
+          // -------------------------------------------------------------------
+
+          playerVars: {
+            version : 3,
+            autoplay: SETTINGS.autoplay,
+            loop    : SETTINGS.loop,
+            index   : SETTINGS.index,
+            rel     : 0,
+          },
+
+          // -------------------------------------------------------------------
+
+          events: {
+            'onReady'      : onPlayerReady,
+            'onStateChange': onPlayerStateChange,
+          },
+
+        });
+
+      }
+      // onYouTubeIframeAPIReady()
+
+      // -----------------------------------------------------------------------
+
+      var playlistArray;
+      var playListArrayLength;
+      var maxNumber;
+
+      var oldNumber = SETTINGS.index;
+      var NewNumber = SETTINGS.index;
+
+      function newRandomNumber()
+      {
+
+        oldNumber = NewNumber;
+        NewNumber = Math.floor( Math.random() * maxNumber );
+
+        // ---------------------------------------------------------------------
+
+        return ( NewNumber === oldNumber ) ? newRandomNumber() : NewNumber;
+
+      }
+      // newRandomNumber()
+
+      // -----------------------------------------------------------------------
+
+      function onPlayerReady( event )
+      {
+
+        console.log('onPlayerReady()');
+
+        // ---------------------------------------------------------------------
+
+        player.loadPlaylist({
+          'listType': 'playlist',
+          'list'    : SETTINGS.playlist_id,
+        });
+
+      }
+      // onPlayerReady()
+
+      // -----------------------------------------------------------------------
+
+      var firstLoad = true;
+
+      function onPlayerStateChange( event )
+      {
+
+        console.log('onPlayerStateChange()');
+
+        if ( ! SETTINGS.random )
+        {
+          return;
+        }
+
+        // ---------------------------------------------------------------------
+
+        if ( event.data == YT.PlayerState.ENDED )
+        {
+          player.playVideoAt( newRandomNumber() );
+        }
+        else
+        {
+          if ( firstLoad && event.data == YT.PlayerState.PLAYING )
+          {
+            firstLoad           = false;
+            playlistArray       = player.getPlaylist();
+            playListArrayLength = playlistArray.length;
+            maxNumber           = playListArrayLength;
+            NewNumber           = newRandomNumber();
+
+            player.playVideoAt( newRandomNumber() );
+          }
+        }
+
+      }
+      // onPlayerReady()
+
+      // very simple YT shuffle command then starts at first video in the new list.
+      function shuff_list() {
+      player.setShuffle(true);
+      // start at index 0
+      player.playVideoAt(0);
+      //player.stopVideo(); //uncomment to stop video playing after shuffle
+      }
+    </script>
+  </body>
+
+</html>
