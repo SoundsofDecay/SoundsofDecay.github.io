@@ -131,6 +131,8 @@ body {
 
 #player {
 	border: solid 1px darkgrey;
+	height: 60vh;
+	width: 55vw;
 }
 
 .player-container {
